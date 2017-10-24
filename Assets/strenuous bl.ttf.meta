@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 437bc7ccb4640314abb41baec80889cc
+timeCreated: 1508144159
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Strenuous
+  fontNames:
+  - Strenuous
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 7b6c354da4f593248ad1026ddf4d0783, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
