@@ -20,7 +20,7 @@ public class init : MonoBehaviour {
     }
     // Use this for initialization
     void Start () {
-        PlayerPrefs.SetInt("points", points);
+        PlayerPrefs.SetInt("points", 50000);//points);
         PlayerPrefs.SetInt("addL", add);
         PlayerPrefs.SetInt("minL", min);
         PlayerPrefs.SetInt("mulL", mul);

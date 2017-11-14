@@ -14,6 +14,9 @@ public class lab : MonoBehaviour {
     public Button min;
     public Button mul;
     public Button div;
+
+    public analytics an;
+
     // Use this for initialization
     void Start () {
 		addL.text = "Level: " + PlayerPrefs.GetInt("addL").ToString();
@@ -66,6 +69,8 @@ public class lab : MonoBehaviour {
 
     void levelAdd()
     {
+        an.addAbility("plus");
+
         PlayerPrefs.SetInt("addL", PlayerPrefs.GetInt("addL") + 1);
         addL.text = "Level: " + PlayerPrefs.GetInt("addL").ToString();
 
@@ -78,6 +83,8 @@ public class lab : MonoBehaviour {
 
     void levelMin()
     {
+        an.addAbility("minus");
+
         PlayerPrefs.SetInt("minL", PlayerPrefs.GetInt("minL") + 1);
         minL.text = "Level: " + PlayerPrefs.GetInt("minL").ToString();
 
@@ -90,6 +97,8 @@ public class lab : MonoBehaviour {
     
     void levelMul()
     {
+        an.addAbility("mult");
+
         PlayerPrefs.SetInt("mulL", PlayerPrefs.GetInt("mulL") + 1);
         mulL.text = "Level: " + PlayerPrefs.GetInt("mulL").ToString();
 
@@ -102,6 +111,8 @@ public class lab : MonoBehaviour {
 
     void levelDiv()
     {
+        an.addAbility("divide");
+
         PlayerPrefs.SetInt("divL", PlayerPrefs.GetInt("divL") + 1);
         divL.text = "Level: " + PlayerPrefs.GetInt("divL").ToString();
 

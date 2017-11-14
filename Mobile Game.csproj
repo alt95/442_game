@@ -83,6 +83,7 @@
     <Compile Include="Assets\MenuCtrl.cs" />
     <Compile Include="Assets\points.cs" />
     <Compile Include="Assets\scripts\alien.cs" />
+    <Compile Include="Assets\scripts\analytics.cs" />
     <Compile Include="Assets\scripts\battle.cs" />
     <Compile Include="Assets\scripts\lab.cs" />
     <Compile Include="Assets\scripts\robot.cs" />

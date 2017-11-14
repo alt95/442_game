@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class battle : MonoBehaviour {
+
     public Slider myhp;
     public Slider enemyhp;
 
@@ -39,7 +40,13 @@ public class battle : MonoBehaviour {
     public Text status;
     public Text points;
 
+    public int level;
+
+    public analytics an;
+
     bool player1 = true;
+
+    public System.Diagnostics.Stopwatch sw = new System.Diagnostics.Stopwatch();
 
     void Awake()
     {
@@ -48,6 +55,7 @@ public class battle : MonoBehaviour {
     }
     // Use this for initialization
     void Start () {
+        sw.Start();
         //Listener for attack phase
         Button[] opt = new Button[4];
         for(int i = 0; i < operators.Length; i++)
@@ -126,7 +134,10 @@ public class battle : MonoBehaviour {
                 enemyhp.value = enemyhp.value - number;
             }
             if (checkEnemyDead())
+            {
                 alienAnimator.Play("alien_dead");
+                record(1);
+            }
             else
                 alienAnimator.Play("alien_hurt");
         }
@@ -135,7 +146,10 @@ public class battle : MonoBehaviour {
             float number = UnityEngine.Random.Range(0.1f, 0.2f);
             myhp.value = myhp.value - number;
             if (checkDead())
+            {
                 robotAnimator.Play("robot_dead");
+                record(0);
+            }
             else
                 robotAnimator.Play("robot_hurt");
         }
@@ -203,14 +217,18 @@ public class battle : MonoBehaviour {
 
         if (answer)
         {
-
+            an.answer(level, 1);
         }
         else
         {
+            an.answer(level, 0);
             float number = UnityEngine.Random.Range(0.2f, 0.3f);
             myhp.value = myhp.value - number;
             if (checkDead())
+            {
                 robotAnimator.Play("robot_dead");
+                record(0);
+            }
             else
                 robotAnimator.Play("robot_hurt");
         }
@@ -227,6 +245,19 @@ public class battle : MonoBehaviour {
         }
     }
 
+    public void record(int win)
+    {
+        sw.Stop();
+        TimeSpan ts = sw.Elapsed;
+        string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+    ts.Hours, ts.Minutes, ts.Seconds,
+    ts.Milliseconds / 10);
+        an.stat(level, win, elapsedTime);
+        Debug.Log(level);
+        Debug.Log(win);
+        Debug.Log(elapsedTime);
+
+    }
     void endLevel()
     {
         //back to level selection screen
@@ -318,21 +349,25 @@ public class battle : MonoBehaviour {
 
         if(type.Equals("add"))
         {
+            an.attackChoice(level, "plus");
             changeSignBtn("+");
         }
 
         if (type.Equals("minus"))
         {
+            an.attackChoice(level, "minus");
             changeSignBtn("-");
         }
 
         if (type.Equals("multiply"))
         {
+            an.attackChoice(level, "multiply");
             changeSignBtn("x");
         }
 
         if (type.Equals("divide"))
         {
+            an.attackChoice(level, "divide");
             changeSignBtn("÷");
         }
     }
