@@ -16,6 +16,7 @@ public class battle : MonoBehaviour {
     public CanvasGroup formulaGroup;
     public CanvasGroup question;
     public CanvasGroup endlevel;
+    public CanvasGroup feedbackgroup;
 
     public Button signBtn;
     public Button attackBtn;
@@ -39,6 +40,9 @@ public class battle : MonoBehaviour {
 
     public Text status;
     public Text points;
+    public Text feedback;
+    public Text hp;
+    public Text ehp;
 
     public int level;
 
@@ -54,11 +58,11 @@ public class battle : MonoBehaviour {
         alienAnimator = ali.GetComponent<Animator>();
     }
     // Use this for initialization
-    void Start () {
+    void Start() {
         sw.Start();
         //Listener for attack phase
         Button[] opt = new Button[4];
-        for(int i = 0; i < operators.Length; i++)
+        for (int i = 0; i < operators.Length; i++)
         {
             opt[i] = operators[i].GetComponent<Button>();
             string name = opt[i].name;
@@ -72,12 +76,13 @@ public class battle : MonoBehaviour {
         defendAttack.onClick.AddListener(answerQ);
 
         points.text = "Points: " + PlayerPrefs.GetInt("points").ToString();
-	}
-	
-	// Update is called once per frame
-	void Update () {
+        updateHP();
+    }
 
-	}
+    // Update is called once per frame
+    void Update() {
+
+    }
     IEnumerator ExecuteAfterTime(float time)
     {
         yield return new WaitForSeconds(time);
@@ -85,6 +90,15 @@ public class battle : MonoBehaviour {
         // Code to execute after the delay
     }
 
+    void updateHP()
+    {
+        int fhp = (int) (myhp.value * 100);
+        int fehp = (int) (enemyhp.value * 100);
+
+        hp.text = "My Health (" + fhp + "/100)";
+        ehp.text = "Enemy Health (" + fehp + "/100)";
+
+    }
 
     void playerMove()
     {
@@ -93,7 +107,7 @@ public class battle : MonoBehaviour {
         int in1 = Int32.Parse(input1.text);
         int in2 = Int32.Parse(input2.text);
         int in3 = Int32.Parse(input3.text);
-        
+
         //--Add check here to show warning message if not filled fields--//
 
         if (currOperator.Equals("add"))
@@ -113,7 +127,7 @@ public class battle : MonoBehaviour {
         }
         if (currOperator.Equals("divide"))
         {
-            if(in2 == 0)
+            if (in2 == 0)
             {
                 answer = false;
             } else
@@ -124,18 +138,23 @@ public class battle : MonoBehaviour {
         }
         if (answer)
         {
-            float number = UnityEngine.Random.Range(0.3f, 0.4f);
+            float number = playerPower(); // UnityEngine.Random.Range(0.3f, 0.4f);
+
             robotAnimator.Play("robot_shoot");
-            if(PlayerPrefs.GetInt("minL") > 1 && currOperator == "minus")
+            if (PlayerPrefs.GetInt("minL") > 1 && currOperator == "minus")
             {
                 enemyhp.value = 0.0f;
+                updateHP(); 
             } else
             {
                 enemyhp.value = enemyhp.value - number;
+                updateHP();
             }
             if (checkEnemyDead())
             {
                 alienAnimator.Play("alien_dead");
+                string lev = "Level" + level;
+                PlayerPrefs.SetInt(lev, 1);
                 record(1);
             }
             else
@@ -145,6 +164,7 @@ public class battle : MonoBehaviour {
         {
             float number = UnityEngine.Random.Range(0.1f, 0.2f);
             myhp.value = myhp.value - number;
+            updateHP();
             if (checkDead())
             {
                 robotAnimator.Play("robot_dead");
@@ -156,7 +176,7 @@ public class battle : MonoBehaviour {
 
         hideFormula();
 
-        if(!checkDead() && !checkEnemyDead())
+        if (!checkDead() && !checkEnemyDead())
         {
             Invoke("enemyTurn", 2);
         } else
@@ -165,10 +185,66 @@ public class battle : MonoBehaviour {
         }
     }
 
+    float playerPower()
+    {
+        float n = 0;
+        int getLev = 0;
+        if (currOperator.Equals("add"))
+        {
+            getLev = PlayerPrefs.GetInt("addL");
+        }
+        if (currOperator.Equals("minus"))
+        {
+            getLev = PlayerPrefs.GetInt("minL");
+        }
+        if (currOperator.Equals("multiply"))
+        {
+            getLev = PlayerPrefs.GetInt("mulL");
+        }
+        if (currOperator.Equals("divide"))
+        {
+            getLev = PlayerPrefs.GetInt("divL");
+        }
+
+        //Zero error
+        getLev = getLev + 1;
+        //Helps us calculate scaling of impact on level and complexity
+        float ratio = (float)getLev / level;
+        float baseHit = UnityEngine.Random.Range(0.05f, 0.10f);
+
+        //Determine complexity of numbers
+        int num1 = Int32.Parse(input1.text);
+        int num2 = Int32.Parse(input2.text);
+
+        int multiplier = 1;
+
+        if(num1 > 10 && num2 > 10)
+        {
+            multiplier = multiplier + 1;
+        }
+
+        if(num1 > 60 || num2 > 60)
+        {
+            multiplier = multiplier + 1;
+        }
+
+        if(currOperator.Equals("multiply") || currOperator.Equals("divide"))
+        {
+            multiplier = multiplier + 1;
+        }
+
+        n = ratio * baseHit * multiplier;
+
+        if (n > 0.5f)
+            n = 0.5f;
+
+        return n;
+    }
+
     void enemyTurn()
     {
         //choose operator
-        float oper = UnityEngine.Random.Range(0.0f, 0.75f);
+        float oper = UnityEngine.Random.Range(0.0f, 1.0f);
         if (oper < 0.25f)
         {
             currOperator = "add";
@@ -177,14 +253,37 @@ public class battle : MonoBehaviour {
         {
             currOperator = "minus";
         }
-        else {
+        else if (oper >= 0.5f && oper < 0.75f) {
             currOperator = "multiply";
         }
-            
+        else
+        {
+            currOperator = "divide";
+        }
 
-        //Choose 2 numbers
-        int num1 = UnityEngine.Random.Range(1, 11);
-        int num2 = UnityEngine.Random.Range(1, 11);
+        int levelMultiplier = 1;
+        //Choose 2 numbers based on level - gets higher for add/sub and little bit higher for mult/div 
+
+        if (currOperator.Equals("add") || currOperator.Equals("minus"))
+        {
+            levelMultiplier = level + 5;
+        }
+
+        if (currOperator.Equals("multiply") || currOperator.Equals("divide"))
+        {
+            levelMultiplier = level;
+        }
+
+        int num1 = UnityEngine.Random.Range(1 + levelMultiplier, 11 + levelMultiplier);
+        int num2 = UnityEngine.Random.Range(1 + levelMultiplier, 11 + levelMultiplier);
+
+        //Flip answer to be first number if division
+        if(currOperator.Equals("divide"))
+        {
+            int num3 = num1 * num2;
+            num1 = num3;
+
+        }
 
         showQuestionFrame(num1, num2);
 
@@ -198,21 +297,35 @@ public class battle : MonoBehaviour {
         int n1 = Int32.Parse(num1.text);
         int n2 = Int32.Parse(num2.text);
         int n3 = Int32.Parse(num3.text);
+        int corrAns = 0;
 
         if (currOperator.Equals("add"))
         {
             if (n1 + n2 == n3)
                 answer = true;
+
+            corrAns = n1 + n2;
         }
         if (currOperator.Equals("minus"))
         {
             if (n1 - n2 == n3)
                 answer = true;
+
+            corrAns = n1 - n2;
         }
         if (currOperator.Equals("multiply"))
         {
             if (n1 * n2 == n3)
                 answer = true;
+
+            corrAns = n1 * n2;
+        }
+        if (currOperator.Equals("divide"))
+        {
+            if (n1 / n2 == n3)
+                answer = true;
+
+            corrAns = n1 / n2;
         }
 
         if (answer)
@@ -221,9 +334,14 @@ public class battle : MonoBehaviour {
         }
         else
         {
+            //Feedback Code
+            evaluateAnswer((float)corrAns, (float)n3);
+            showFeedback();
+
             an.answer(level, 0);
             float number = UnityEngine.Random.Range(0.2f, 0.3f);
             myhp.value = myhp.value - number;
+            updateHP();
             if (checkDead())
             {
                 robotAnimator.Play("robot_dead");
@@ -243,6 +361,46 @@ public class battle : MonoBehaviour {
         {
             endLevel();
         }
+    }
+
+    void evaluateAnswer(float corr, float ans)
+    {
+        feedback.text = "";
+        if(currOperator.Equals("add") || currOperator.Equals("minus"))
+        {
+            if((corr - 10 == ans) || (corr + 10 == ans))
+            {
+                feedback.text = "Looks like you made a carrying error!";
+            }
+            
+            if((corr - 1 == ans) || (corr + 1 == ans))
+            {
+                feedback.text = "So close! Looks like you made a slight mistake";
+            }
+        }
+
+        if(currOperator.Equals("multiply"))
+        {
+            if((corr * 10 == ans))
+            {
+                feedback.text = "Looks like you put an extra 0!";
+            }
+            if((corr / 10 == ans))
+            {
+                feedback.text = "Looks like you missed a 0!";
+            }
+        }
+
+        if(currOperator.Equals("divide"))
+        {
+            if(corr == 1)
+            {
+                feedback.text = "Remember, a number divided by itself is always 1";
+            }
+        }
+
+        //append correct answer too feedback.text
+        feedback.text = feedback.text + " The correct answer was " + corr;
     }
 
     public void record(int win)
@@ -282,10 +440,6 @@ public class battle : MonoBehaviour {
 
     }
 
-    void delay()
-    {
-
-    }
 
     void showQuestionFrame(int a, int b)
     {
@@ -312,6 +466,11 @@ public class battle : MonoBehaviour {
         if (currOperator.Equals("multiply"))
         {
             qstBtn.GetComponentInChildren<Text>().text = "x";
+        }
+
+        if (currOperator.Equals("divide"))
+        {
+            qstBtn.GetComponentInChildren<Text>().text = "÷";
         }
 
         showQuestion();
@@ -413,13 +572,18 @@ public class battle : MonoBehaviour {
         question.blocksRaycasts = false;
     }
 
-    void player1Turn()
+    void showFeedback()
     {
-
+        feedbackgroup.alpha = 1f;
+        feedbackgroup.blocksRaycasts = true;
+        Invoke("hideFeedback", 6);
     }
 
-    void aiTurn()
+    void hideFeedback()
     {
-
+        feedbackgroup.alpha = 0;
+        feedbackgroup.blocksRaycasts = false;
     }
+
+
 }

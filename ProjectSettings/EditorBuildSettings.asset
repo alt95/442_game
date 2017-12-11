@@ -23,3 +23,21 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Tut.unity
     guid: fdb4949f1f517b745978de2c5e62285c
+  - enabled: 1
+    path: Assets/Level2.unity
+    guid: 8e0e56d6cd76236488702ca89c4835a1
+  - enabled: 1
+    path: Assets/Level3.unity
+    guid: fa68ea04d1eeec4469471a296174901c
+  - enabled: 1
+    path: Assets/Level4.unity
+    guid: 9e650b0dab008734a8937a6fe02373b2
+  - enabled: 1
+    path: Assets/Level5.unity
+    guid: 7184fadb66917e840ab671d7e3dec732
+  - enabled: 1
+    path: Assets/Level6.unity
+    guid: 12c38261254d1064fa5335b9041380b7
+  - enabled: 1
+    path: Assets/Level7.unity
+    guid: 2dacf3da22bb9374fb010db82083d980
